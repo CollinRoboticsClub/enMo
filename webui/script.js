@@ -1,6 +1,6 @@
 //const ip = "10.8.215.228"
-const ip = "localhost:8000"
-const url=`http://${ip}/move`;
+const ip = location.host
+const url=`http://${ip}/api/move`;
 
 var pressedKeys = {};
 window.onkeyup = function(e) { pressedKeys[e.key] = false; }
@@ -14,7 +14,7 @@ pressedKeys["ArrowDown"] = false;
 
 var intervalId = window.setInterval(function(){
 	mainFunction()
-}, 5000);
+}, 3000);
 
 
 function mainFunction() {
@@ -34,6 +34,4 @@ function mainFunction() {
 	}).then(res => {
 		console.log("Request complete! response:", res);
 	});
-
-	//break;
 }

@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  web-stack:
+    image: python:slim-bookworm
+    ports:
+      - 80:8000
+    working_dir: /app
+    entrypoint: /app/api/docker-start.sh
+    command:
+      - /app/api/server.py
+    volumes:
+      - ./api:/app/api:ro
+      - ./webui:/app/webui:ro
