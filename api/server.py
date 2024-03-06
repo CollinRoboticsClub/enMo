@@ -31,20 +31,19 @@ async def move(movement_packet: MovementPacket):
 
     return 0
 
-def setup_fastapi():
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["*"], # very security :)
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], # very security :)
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-    app.mount("/", StaticFiles(directory="../webui", html=True), name="static")
+app.mount("/", StaticFiles(directory="../webui", html=True), name="static")
+
+arduino = serial.Serial(port='COM4', baudrate=115200, timeout=.5)
 
 if __name__ == "__main__":
-    setup_fastapi()
-    arduino = serial.Serial(port='COM4', baudrate=115200, timeout=.5)
     uvicorn.run(
         "server:app",
         reload=True,
