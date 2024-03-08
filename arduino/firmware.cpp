@@ -35,15 +35,22 @@ DCMDriverL298 rearMotorDriver(
 	MOTORDRIVERL298_2_PIN_INT4
 );
 
+// TODO: make code below actually use these constants
+// motor constants
+const int MAX_SPEED = 0
+const int NORMAL_SPEED = 0
+const int OFF_SPEED = 0
+const int FORWARD = 0 // TODO: figure out if this is correct
+const int BACKWARD = 1 // TODO: figure out if this is correct
+
 // define vars for testing menu
-const int timeout = 10000;       //define timeout of 10 sec
+const int TIMEOUT = 10000;
 char menuOption = 0;
 long time0;
 
 // Menu function for selecting the components to be tested
 // Follow serial monitor for instrcutions
 char menu() {
-
 	Serial.println(F("\nWhich component would you like to test?"));
 	Serial.println(F("(1) L298N Motor Driver with Dual Hobby DC motors #1"));
 	Serial.println(F("(2) L298N Motor Driver with Dual Hobby DC motors #2"));
@@ -74,9 +81,9 @@ char menu() {
 
 void setup() {
 	// Setup Serial which is useful for debugging
-	// Use the Serial Monitor to view printed messages
 	//Serial.begin(9600);
 	//while (!Serial) ; // wait for serial port to connect. Needed for native USB
+
 	//Serial.println("start");
 	//menuOption = menu();
 }
@@ -95,9 +102,6 @@ void loop() {
 	delay(2000);
 
 	//} else if(menuOption == '2') {
-	// L298N Motor Driver with Dual Hobby DC motors #2 - Test Code
-	// Start both motors. note that rotation direction is determined by the motors connection to the driver.
-	// You can change the speed by setting a value between 0-255, and set the direction by changing between 1 and 0.
 	rearMotorDriver.setMotorA(200,1);
 	rearMotorDriver.setMotorB(200,0);
 	delay(2000);
@@ -108,7 +112,7 @@ void loop() {
 	//
 	//}
 
-	//if (millis() - time0 > timeout) {
+	//if (millis() - time0 > TIMEOUT) {
 	//menuOption = menu();
 	//}
 
