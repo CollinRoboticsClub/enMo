@@ -44,32 +44,32 @@ long time0;
 // Follow serial monitor for instrcutions
 char menu() {
 
-    Serial.println(F("\nWhich component would you like to test?"));
-    Serial.println(F("(1) L298N Motor Driver with Dual Hobby DC motors #1"));
-    Serial.println(F("(2) L298N Motor Driver with Dual Hobby DC motors #2"));
-    Serial.println(F("(menu) send anything else or press on board reset button\n"));
-    while (!Serial.available());
+	Serial.println(F("\nWhich component would you like to test?"));
+	Serial.println(F("(1) L298N Motor Driver with Dual Hobby DC motors #1"));
+	Serial.println(F("(2) L298N Motor Driver with Dual Hobby DC motors #2"));
+	Serial.println(F("(menu) send anything else or press on board reset button\n"));
+	while (!Serial.available());
 
-    // Read data from serial monitor if received
-    while (Serial.available())
-    {
-        char c = Serial.read();
-        if (isAlphaNumeric(c))
-        {
+	// Read data from serial monitor if received
+	while (Serial.available())
+	{
+		char c = Serial.read();
+		if (isAlphaNumeric(c))
+		{
 
-            if(c == '1')
-    			Serial.println(F("Now Testing L298N Motor Driver with Dual Hobby DC motors #1"));
-    		else if(c == '2')
-    			Serial.println(F("Now Testing L298N Motor Driver with Dual Hobby DC motors #2"));
-            else
-            {
-                Serial.println(F("illegal input!"));
-                return 0;
-            }
-            time0 = millis();
-            return c;
-        }
-    }
+			if(c == '1')
+				Serial.println(F("Now Testing L298N Motor Driver with Dual Hobby DC motors #1"));
+				else if(c == '2')
+				Serial.println(F("Now Testing L298N Motor Driver with Dual Hobby DC motors #2"));
+			else
+			{
+				Serial.println(F("illegal input!"));
+				return 0;
+			}
+			time0 = millis();
+			return c;
+		}
+	}
 }
 
 void setup() {
@@ -83,33 +83,33 @@ void setup() {
 
 void loop() {
 	//if(menuOption == '1') {
-		// L298N Motor Driver with Dual Hobby DC motors #1 - Test Code
-		// Start both motors. note that rotation direction is determined by the motors connection to the driver.
-		// You can change the speed by setting a value between 0-255, and set the direction by changing between 1 and 0.
-		frontMotorDriver.setMotorA(200,1);
-		frontMotorDriver.setMotorB(200,0);
-		delay(2000);
-		
-		//Stop both motors
-		frontMotorDriver.stopMotors();
-		delay(2000);
-		
-	//} else if(menuOption == '2') {
-		// L298N Motor Driver with Dual Hobby DC motors #2 - Test Code
-		// Start both motors. note that rotation direction is determined by the motors connection to the driver.
-		// You can change the speed by setting a value between 0-255, and set the direction by changing between 1 and 0.
-		rearMotorDriver.setMotorA(200,1);
-		rearMotorDriver.setMotorB(200,0);
-		delay(2000);
+	// L298N Motor Driver with Dual Hobby DC motors #1 - Test Code
+	// Start both motors. note that rotation direction is determined by the motors connection to the driver.
+	// You can change the speed by setting a value between 0-255, and set the direction by changing between 1 and 0.
+	frontMotorDriver.setMotorA(200,1);
+	frontMotorDriver.setMotorB(200,0);
+	delay(2000);
 
-		//Stop both motors
-		rearMotorDriver.stopMotors();
-		delay(2000);
-		//
+	//Stop both motors
+	frontMotorDriver.stopMotors();
+	delay(2000);
+
+	//} else if(menuOption == '2') {
+	// L298N Motor Driver with Dual Hobby DC motors #2 - Test Code
+	// Start both motors. note that rotation direction is determined by the motors connection to the driver.
+	// You can change the speed by setting a value between 0-255, and set the direction by changing between 1 and 0.
+	rearMotorDriver.setMotorA(200,1);
+	rearMotorDriver.setMotorB(200,0);
+	delay(2000);
+
+	//Stop both motors
+	rearMotorDriver.stopMotors();
+	delay(2000);
+	//
 	//}
 
 	//if (millis() - time0 > timeout) {
-		//menuOption = menu();
+	//menuOption = menu();
 	//}
 
 }
