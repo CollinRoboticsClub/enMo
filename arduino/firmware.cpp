@@ -1,5 +1,5 @@
 // Include Libraries
-#include "Arduino.h"
+#include <Arduino.h>
 #include "DCMDriverL298.h"
 
 // Pin Definitions
@@ -18,13 +18,59 @@
 #define MOTORDRIVER_2_PIN_INT4	13
 
 
-DCMDriverL298 frontMotorDriver(MOTORDRIVERL298_1_PIN_ENA,MOTORDRIVERL298_1_PIN_INT1,MOTORDRIVERL298_1_PIN_INT2,MOTORDRIVERL298_1_PIN_ENB,MOTORDRIVERL298_1_PIN_INT3,MOTORDRIVERL298_1_PIN_INT4);
-DCMDriverL298 rearMotorDriver(MOTORDRIVERL298_2_PIN_ENA,MOTORDRIVERL298_2_PIN_INT1,MOTORDRIVERL298_2_PIN_INT2,MOTORDRIVERL298_2_PIN_ENB,MOTORDRIVERL298_2_PIN_INT3,MOTORDRIVERL298_2_PIN_INT4);
+DCMDriverL298 frontMotorDriver(
+	MOTORDRIVERL298_1_PIN_ENA,
+	MOTORDRIVERL298_1_PIN_INT1,
+	MOTORDRIVERL298_1_PIN_INT2,
+	MOTORDRIVERL298_1_PIN_ENB,
+	MOTORDRIVERL298_1_PIN_INT3,
+	MOTORDRIVERL298_1_PIN_INT4
+);
+DCMDriverL298 rearMotorDriver(
+	MOTORDRIVERL298_2_PIN_ENA,
+	MOTORDRIVERL298_2_PIN_INT1,
+	MOTORDRIVERL298_2_PIN_INT2,
+	MOTORDRIVERL298_2_PIN_ENB,
+	MOTORDRIVERL298_2_PIN_INT3,
+	MOTORDRIVERL298_2_PIN_INT4
+);
 
 // define vars for testing menu
 const int timeout = 10000;       //define timeout of 10 sec
 char menuOption = 0;
 long time0;
+
+// Menu function for selecting the components to be tested
+// Follow serial monitor for instrcutions
+char menu() {
+
+    Serial.println(F("\nWhich component would you like to test?"));
+    Serial.println(F("(1) L298N Motor Driver with Dual Hobby DC motors #1"));
+    Serial.println(F("(2) L298N Motor Driver with Dual Hobby DC motors #2"));
+    Serial.println(F("(menu) send anything else or press on board reset button\n"));
+    while (!Serial.available());
+
+    // Read data from serial monitor if received
+    while (Serial.available())
+    {
+        char c = Serial.read();
+        if (isAlphaNumeric(c))
+        {
+
+            if(c == '1')
+    			Serial.println(F("Now Testing L298N Motor Driver with Dual Hobby DC motors #1"));
+    		else if(c == '2')
+    			Serial.println(F("Now Testing L298N Motor Driver with Dual Hobby DC motors #2"));
+            else
+            {
+                Serial.println(F("illegal input!"));
+                return 0;
+            }
+            time0 = millis();
+            return c;
+        }
+    }
+}
 
 void setup() {
 	// Setup Serial which is useful for debugging
@@ -67,35 +113,3 @@ void loop() {
 	//}
 
 }
-
-// Menu function for selecting the components to be tested
-// Follow serial monitor for instrcutions
-//char menu() {
-//
-//    Serial.println(F("\nWhich component would you like to test?"));
-//    Serial.println(F("(1) L298N Motor Driver with Dual Hobby DC motors #1"));
-//    Serial.println(F("(2) L298N Motor Driver with Dual Hobby DC motors #2"));
-//    Serial.println(F("(menu) send anything else or press on board reset button\n"));
-//    while (!Serial.available());
-//
-//    // Read data from serial monitor if received
-//    while (Serial.available()) 
-//    {
-//        char c = Serial.read();
-//        if (isAlphaNumeric(c)) 
-//        {
-//
-//            if(c == '1') 
-//    			Serial.println(F("Now Testing L298N Motor Driver with Dual Hobby DC motors #1"));
-//    		else if(c == '2') 
-//    			Serial.println(F("Now Testing L298N Motor Driver with Dual Hobby DC motors #2"));
-//            else
-//            {
-//                Serial.println(F("illegal input!"));
-//                return 0;
-//            }
-//            time0 = millis();
-//            return c;
-//        }
-//    }
-//}
