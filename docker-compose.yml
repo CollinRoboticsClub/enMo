@@ -1,14 +1,13 @@
-version: '3'
+# re-run `docker compose up --build --force-recreate` when you wanna test your code
 
 services:
   web-stack:
-    image: python:slim-bookworm
-    ports:
-      - 80:8000
-    working_dir: /app
-    entrypoint: /app/api/docker-start.sh
-    command:
-      - /app/api/server.py
+    build:
+      context: .
+      dockerfile: ./Dockerfile
     volumes:
-      - ./api:/app/api:ro
-      - ./webui:/app/webui:ro
+      # You may need to change this to your system's serial port path, but don't commit that change since it's system-specific
+      # Only edit the path to the left of the ":". The right side is effectively a "rename" operation of that path for the container
+      - /dev/ttyUSB0:/dev/ttyUSB0
+    ports:
+      - 8000:8000

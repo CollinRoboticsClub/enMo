@@ -39,7 +39,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.mount("/", StaticFiles(directory="../webui", html=True), name="static")
+app.mount("/", StaticFiles(directory="./webui", html=True), name="static")
 
 arduino = serial.Serial(port='COM4', baudrate=115200, timeout=.5)
 
