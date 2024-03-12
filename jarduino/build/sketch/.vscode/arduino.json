@@ -1,0 +1,7 @@
+#line 1 "C:\\Users\\joshu\\OneDrive\\Documents\\GitHub\\chessbot-pi-code\\jarduino\\.vscode\\arduino.json"
+{
+    "board": "arduino:avr:nano",
+    // "port": "COM4",
+    "sketch": "jarduino.ino",
+    "output": "build"
+}
