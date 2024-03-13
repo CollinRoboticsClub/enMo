@@ -1,6 +1,0 @@
-{
-    "board": "arduino:avr:nano",
-    // "port": "COM4",
-    "sketch": "jarduino.ino",
-    "output": "build"
-}

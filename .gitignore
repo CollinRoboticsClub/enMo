@@ -1,3 +1,7 @@
+# IDE config files
+**/.vscode
+**/.idea
+
 # python
 **/venv
 **/__pycache__
