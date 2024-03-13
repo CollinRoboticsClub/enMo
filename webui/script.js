@@ -1,37 +1,62 @@
-//const ip = "10.8.215.228"
-const ip = location.host
-const url=`http://${ip}/api/move`;
+const API_SERVER_IP = location.host;
+const API_SERVER_URL = `http://${API_SERVER_IP}/api`;
+const API_ENDPOINT_WHEELS = `${API_SERVER_URL}/move-wheels`;
 
-var pressedKeys = {};
-window.onkeyup = function(e) { pressedKeys[e.key] = false; }
-window.onkeydown = function(e) { pressedKeys[e.key] = true; }
+// TODO: make a way to send claw close/open and arm up/down input in UI and implement it API-side
+// init joysticks
+const joystickOptions = {
+    internalFillColor: '#AA0000',
+    internalStrokeColor: '#330000',
+    internalLineWidth: 2,
+    externalStrokeColor: '#800000',
+    externalLineWidth: 2,
+};
+const joystickRobotPosition = new JoyStick(
+    'joystickRobotPosition',
+    joystickOptions
+);
+const joystickRobotRotation = new JoyStick(
+    'joystickRobotRotation',
+    joystickOptions
+);
 
-// set these to false so they're not undefined
-pressedKeys["ArrowLeft"] = false;
-pressedKeys["ArrowRight"] = false;
-pressedKeys["ArrowUp"] = false;
-pressedKeys["ArrowDown"] = false;
+const intervalId = window.setInterval(function () {
+    sendData();
+}, 1000); // TODO: once out of the debugging phase, change this to something much lower (faster)
 
-var intervalId = window.setInterval(function(){
-	mainFunction()
-}, 3000);
+// Clamp value to [-100, 100] to work around bug of joysticks sometimes going out of their intended bounds
+function clamp(number) {
+    let min = -100;
+    let max = 100;
+    return Math.max(min, Math.min(number, max));
+}
 
+function sendData() {
+    let x = Number(joystickRobotPosition.GetX());
+    let y = Number(joystickRobotPosition.GetY());
+    let rotation_magnitude = Number(joystickRobotRotation.GetX());
 
-function mainFunction() {
-	let data = {
-		left: pressedKeys["ArrowLeft"],
-		right: pressedKeys["ArrowRight"],
-		up: pressedKeys["ArrowUp"],
-		down: pressedKeys["ArrowDown"],
-		speed: 1.0
-	};
-	console.log(data);
+    // clamp values to address bug mentioned above clamp() declaration
+    x = clamp(x);
+    y = clamp(y);
+    rotation_magnitude = clamp(rotation_magnitude);
 
-	fetch(url, {
-		method: "POST",
-		headers: {'Content-Type': 'application/json'},
-		body: JSON.stringify(data)
-	}).then(res => {
-		console.log("Request complete! response:", res);
-	});
+    // change range from [-100, 100] to [-1, 1]
+    x /= 100;
+    y /= 100;
+    rotation_magnitude /= 100;
+
+    let data = {
+        x: x,
+        y: y,
+        rotation: rotation_magnitude,
+    };
+
+    console.log(data); // DEBUGGING:
+
+    fetch(API_ENDPOINT_WHEELS, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+    });
 }

@@ -1,39 +1,60 @@
 #!/usr/bin/env python3
 
-from pydantic import BaseModel
+import serial
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-import serial
+from pydantic import BaseModel
+
 
 class MovementPacket(BaseModel):
-    left: bool
-    right: bool
-    up: bool
-    down: bool
-    speed: float # speed factor, [0,1]
+    x: float
+    y: float
+    rotation: float
+
+
+def arduino_send(input: str):
+    arduino.write(f"{input}\n".encode())
+
+
+def arduino_send_arr(input_arr: list[str]):
+    for input in input_arr:
+        arduino_send(input)
 
 
 app = FastAPI(root_path="/api")
 
-@app.post("/move")
-async def move(movement_packet: MovementPacket):
-    left = movement_packet.left
-    right = movement_packet.right
-    up = movement_packet.up
-    down = movement_packet.down
-    speed = movement_packet.speed
 
-    # TODO: call serial com functions here
-    if False:
-        return 1
+@app.post("/move-wheels")
+async def move_wheels(movement_packet: MovementPacket):
+    # TODO:
+    # - figure out how to: if no movement packet received within last X seconds, send basically
+    #   a packet of all zeroes to make the robot stop moving if the client abruptly disconnects.
+
+    x = movement_packet.x
+    y = movement_packet.y
+    rotation = movement_packet.rotation
+    arduino_send(f"{x} {y} {rotation}")
 
     return 0
 
+
+@app.post("/move-arm")
+async def move_arm(movement_packet: MovementPacket):
+    x = movement_packet.x
+    y = movement_packet.y
+
+    # TODO: implement this
+    # I think the pi is gonna directly be communicating with the arm via its pins, so I'll
+    # probably have to mess with that to get this part working
+
+    return 0
+
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # very security :)
+    allow_origins=["*"],  # very security :)
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -41,12 +62,7 @@ app.add_middleware(
 
 app.mount("/", StaticFiles(directory="./webui", html=True), name="static")
 
-arduino = serial.Serial(port='COM4', baudrate=115200, timeout=.5)
+arduino = serial.Serial(port="/dev/ttyUSB0", baudrate=115200, timeout=0.5)
 
 if __name__ == "__main__":
-    uvicorn.run(
-        "server:app",
-        reload=True,
-        host="0.0.0.0",
-        port=8000
-    )
+    uvicorn.run("server:app", reload=True, host="0.0.0.0", port=8000)
