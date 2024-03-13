@@ -52,7 +52,7 @@ void loop() {
         backRight.setSpeed(y);
 
         // drive.setSpeed(x, y, rotation);
-        delay(600);
+        delay(20000);
         drive.setSpeed(0, 0, 0);
     }
 }

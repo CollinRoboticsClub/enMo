@@ -44,10 +44,11 @@ while True:
     y = controller.left_y()
     z = controller.right_x()
 
-    # print_test(x, y, z)
+    print_test(x, y, z)
 
-    message = f"{x} {y} {z}\n"
-    print(message)
+    # message = f"{x} {y} {z}\n"
+    # print(message)
     # bot.write(message.encode())
 
-    time.sleep(0.01)
+    # time.sleep(0.01)
+    time.sleep(1)

@@ -39,13 +39,13 @@ void loop() {
         Serial.println(rotation);
 
 
-        frontLeft.setSpeed(y);
-        frontRight.setSpeed(y);
-        backLeft.setSpeed(y);
-        backRight.setSpeed(y);
+        // frontLeft.setSpeed(y);
+        // frontRight.setSpeed(y);
+        // backLeft.setSpeed(y);
+        // backRight.setSpeed(y);
 
-        // drive.setSpeed(x, y, rotation);
-        delay(600);
-        drive.setSpeed(0, 0, 0);
+        drive.setSpeed(x, y, rotation);
+        // delay(20000);
+        // drive.setSpeed(0, 0, 0);
     }
 }
