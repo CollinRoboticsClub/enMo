@@ -2,6 +2,5 @@
 **/venv
 **/__pycache__
 
-# This is commented out because I'm not sure if *everything* in that directory is unimportant.
-# But if someone knows that it is, or knows which parts are safe to ignore, they should uncomment this.
-#jarduino/build
+# build outputs
+jarduino/build
