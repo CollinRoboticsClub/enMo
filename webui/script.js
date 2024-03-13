@@ -22,7 +22,7 @@ const joystickRobotRotation = new JoyStick(
 
 const intervalId = window.setInterval(function () {
     sendData();
-}, 1000); // TODO: once out of the debugging phase, change this to something much lower (faster)
+}, 100);
 
 // Clamp value to [-100, 100] to work around bug of joysticks sometimes going out of their intended bounds
 function clamp(number) {
