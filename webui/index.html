@@ -1,17 +1,32 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+    <script src="joy.js"></script>
+    <style>
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+        }
+        .joystick {
+            width: 250px;
+            height: 250px;
+            margin: 50px;
+        }
+    </style>
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Chess_-_Bot</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Chess_-_Bot</title>
+    </head>
 
-<body>
-  <h1>Robot and stuff</h1>
-  <script src="./script.js"></script>
-</body>
-
+    <body>
+        <h1>Robot and stuff</h1>
+        <div class="row">
+            <div id="joystickRobotPosition" class="joystick"></div>
+            <div id="joystickRobotRotation" class="joystick"></div>
+        </div>
+    </body>
+    <script src="script.js"></script>
 </html>
-
