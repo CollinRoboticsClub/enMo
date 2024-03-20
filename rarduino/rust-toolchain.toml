@@ -1,0 +1,5 @@
+[toolchain]
+# channel = "nightly-2023-12-28" # this has a wacky bug with vscode btw LOL, especially if (like josh) you have your Cargo Check command set to "clippy" bc you're a good idiomatic rustacean...
+channel = "nightly"
+components = ["rust-src"]
+profile = "minimal"
