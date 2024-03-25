@@ -1,13 +1,21 @@
-# re-run `docker compose up --build --force-recreate` when you wanna test your code
+# READ THIS:
+# - re-run `docker compose up --build --force-recreate` when you wanna test your code
+# - You may need to change the "source" path below to your system's serial port path, but
+#   don't commit that change since it's system-specific. Also, ONLY CHANGE THE SOURCE, not
+#   the "target:" path below.
 
 services:
   web-stack:
+    container_name: chessbot
+    # image: ghcr.io/collinroboticsclub/chessbot-pi:latest
     build:
       context: .
       dockerfile: ./Dockerfile
+    # privileged: true
     volumes:
-      # You may need to change this to your system's serial port path, but don't commit that change since it's system-specific
-      # Only edit the path to the left of the ":". The right side is effectively a "rename" operation of that path for the container
-      - /dev/ttyUSB0:/dev/ttyUSB0
+      - type: bind
+        source: /dev/ttyUSB0 # might need to change this
+        target: /dev/ttyUSB0 # DO NOT CHANGE THIS ONE
     ports:
       - 8000:8000
+    # restart: unless-stopped
