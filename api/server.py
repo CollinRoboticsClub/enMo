@@ -62,7 +62,7 @@ app.add_middleware(
 
 app.mount("/", StaticFiles(directory="./webui", html=True), name="static")
 
-arduino = serial.Serial(port="/dev/ttyUSB0", baudrate=115200, timeout=0.5)
+arduino = serial.Serial(port="/dev/ttyUSB0", baudrate=9600, timeout=0.5)
 
 if __name__ == "__main__":
     uvicorn.run("server:app", reload=True, host="0.0.0.0", port=8000)
