@@ -32,7 +32,7 @@ public:
     /// @param brakeMode: COAST or BRAKE
     /// @param reversed: If true, spinning direction is reversed
     /// @param deadzone: Speed below this value is considered 0. Helps avoid the buzzing noise.
-    Motor(int enPin, int in1Pin, int in2Pin, BrakeMode brakeMode = BRAKE, bool reversed = false, double deadzone = 0) :
+    Motor(int enPin, int in1Pin, int in2Pin, bool reversed = false, BrakeMode brakeMode = BRAKE, double deadzone = 0) :
         enPin(enPin), in1Pin(in1Pin), in2Pin(in2Pin), brakeMode(brakeMode), reversed(reversed), deadzone(deadzone) {
         pinMode(enPin, OUTPUT);
         pinMode(in1Pin, OUTPUT);
@@ -84,9 +84,9 @@ public:
     }
 
     void setPWMFrequencyToLowest(int pwmPin) {
-//         // FIXME: this doesn't COMPILE if you don't do the #define hack lol
-//         // the timer register definitions are in magical arduino land in <avr/iom328p.h>
-//         // and you can't include them twice... i just copy-pasted the defines from that ^ file
+        //         // FIXME: this doesn't COMPILE if you don't do the #define hack lol
+        //         // the timer register definitions are in magical arduino land in <avr/iom328p.h>
+        //         // and you can't include them twice... i just copy-pasted the defines from that ^ file
 #define TCCR0B _SFR_IO8(0x25)
 #define TCCR1B _SFR_MEM8(0x81)
 #define TCCR2B _SFR_MEM8(0xB1)
@@ -102,8 +102,8 @@ public:
             break;
         case 5:
         case 6:
-//             // NOTE: Changing this timer 0 affects millis() and delay!
-//             TCCR0B = TCCR0B & B11111000 | B00000101;    // set timer 0 divisor to  1024 for PWM frequency of    61.04 Hz
+            //             // NOTE: Changing this timer 0 affects millis() and delay!
+            //             TCCR0B = TCCR0B & B11111000 | B00000101;    // set timer 0 divisor to  1024 for PWM frequency of    61.04 Hz
             break;
         case 9:
         case 10:
