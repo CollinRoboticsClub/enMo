@@ -14,3 +14,18 @@ TODO Right Now - 4/25/24 overnight - josh 😢😢😢😢😢😭😭
   - Arm
     - Same old pinout check (way easier though)
     - Instructions to test arm directions and switch them incrementally
+
+
+
+# What if we make it run some autonomous demos for Friday...?
+Just for HARDWARE proof that it can run off that???
+This might mean NOT using the WebUI
+
+
+---
+In theory, nice to have:
+  - AIMING, which needs:
+    - webcam access, ideally streaming the opencv output to the webserver
+      - consider... CameraServer??? https://docs.wpilib.org/en/stable/docs/software/vision-processing/wpilibpi/using-cameraserver.html
+    - a PID controller or other motion controller to point the drivetrain at that spot
+      - not impossible... but takes *LOTS of time!*

@@ -13,16 +13,25 @@ from adafruit_servokit import ServoKit
 # I know we have 5 servos...
 kit = ServoKit(channels=16)
 
+# optionally can use these vars for named servo access:
+base = kit.servo[0]
+shoulder = kit.servo[1]
+elbow = kit.servo[2]
+wrist = kit.servo[3]
+gripper = kit.servo[4]
+
 
 def main():
-    for i in range(6):
+    for i in range(5):
         # Testing
         print(f"Setting servo {i} to 90 degrees")
         kit.servo[i].angle = 90
 
         time.sleep(1)
 
-    pass
+def sweeping_test():
+    # WEEPING test bruh
+    
 
 
 if __name__ == "__main__":
