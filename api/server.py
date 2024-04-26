@@ -14,13 +14,13 @@ class MovementPacket(BaseModel):
     rotation: float
 
 
-def arduino_send(input: str):
-    arduino.write(f"{input}\n".encode())
+def arduino_send(input_str: str):
+    arduino.write(f"{input_str}\n".encode())
 
 
 def arduino_send_arr(input_arr: list[str]):
-    for input in input_arr:
-        arduino_send(input)
+    for input_str in input_arr:
+        arduino_send(input_str)
 
 
 app = FastAPI(root_path="/api")
