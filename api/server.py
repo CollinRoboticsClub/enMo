@@ -57,6 +57,9 @@ async def move_arm(movement_packet: MovementPacket):
 @app.websocket("/video")
 async def video_feed(websocket: WebSocket):
     await websocket.accept()
+    video_capture = cv2.VideoCapture(0)
+    video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+    video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
     try:
         while True:
             if video_capture is None:
@@ -77,9 +80,11 @@ async def video_feed(websocket: WebSocket):
             await websocket.send_bytes(encoded_frame_bytes)
 
             # to avoid hogging all the CPU time
-            await asyncio.sleep(0)
+            await asyncio.sleep(0.5)
     except (WebSocketDisconnect, ConnectionClosed):
         print("Client disconnected")
+    finally:
+        video_capture.release()
 
 
 async def detect_bounding_box(image):
@@ -107,12 +112,6 @@ app.mount("/", StaticFiles(directory="./webui", html=True), name="static")
 arduino = serial.Serial(port="/dev/ttyUSB0", baudrate=9600, timeout=0.5)
 
 face_classifier = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
-video_capture = cv2.VideoCapture(0)
-video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 
 if __name__ == "__main__":
     uvicorn.run("server:app", reload=True, host="0.0.0.0", port=8000)
-
-    video_capture.release()
-    cv2.destroyAllWindows()
