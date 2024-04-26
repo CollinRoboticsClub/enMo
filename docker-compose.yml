@@ -11,11 +11,14 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
-    # privileged: true
+    privileged: true
     volumes:
       - type: bind
         source: /dev/ttyUSB0 # might need to change this
         target: /dev/ttyUSB0 # DO NOT CHANGE THIS ONE
+      - type: bind
+        source: /dev/video0 # might need to change this
+        target: /dev/video0 # DO NOT CHANGE THIS ONE
     ports:
       - 8000:8000
     # restart: unless-stopped

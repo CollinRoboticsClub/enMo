@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
+import asyncio
 
+import cv2
+import cv2.data
 import serial
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+from websockets.exceptions import ConnectionClosed
 
 
 class MovementPacket(BaseModel):
@@ -46,10 +50,48 @@ async def move_arm(movement_packet: MovementPacket):
     y = movement_packet.y
 
     # TODO: implement this
-    # I think the pi is gonna directly be communicating with the arm via its pins, so I'll
-    # probably have to mess with that to get this part working
 
     return 0
+
+
+@app.websocket("/video")
+async def video_feed(websocket: WebSocket):
+    await websocket.accept()
+    try:
+        while True:
+            if video_capture is None:
+                break
+
+            # read frame
+            result, video_frame = video_capture.read()
+            if result is False:
+                break
+
+            await detect_bounding_box(video_frame)
+
+            # encode frame as WebP
+            _, encoded_frame = cv2.imencode(".webp", video_frame)
+
+            # send it
+            encoded_frame_bytes = encoded_frame.tobytes()
+            await websocket.send_bytes(encoded_frame_bytes)
+
+            # to avoid hogging all the CPU time
+            await asyncio.sleep(0)
+    except (WebSocketDisconnect, ConnectionClosed):
+        print("Client disconnected")
+
+
+async def detect_bounding_box(image):
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    faces = face_classifier.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(40, 40))
+    for x, y, w, h in faces:
+        cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 4)
+
+        # oooh, center coords for targets >:>
+        center = (int(x + (w / 2)), int(y + (h / 2)))
+        cv2.circle(image, center, 10, (0, 0, 160))
 
 
 app.add_middleware(
@@ -64,5 +106,13 @@ app.mount("/", StaticFiles(directory="./webui", html=True), name="static")
 
 arduino = serial.Serial(port="/dev/ttyUSB0", baudrate=9600, timeout=0.5)
 
+face_classifier = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
+video_capture = cv2.VideoCapture(0)
+video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+
 if __name__ == "__main__":
     uvicorn.run("server:app", reload=True, host="0.0.0.0", port=8000)
+
+    video_capture.release()
+    cv2.destroyAllWindows()

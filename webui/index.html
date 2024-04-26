@@ -38,6 +38,21 @@
             <!--     <p class="joystickLabel">Arm Rotation</p> -->
             <!-- </div> -->
         </div>
+        <div class="container">
+            <h3>Webcam Stream</h3>
+            <img id="frame" />
+            <script>
+                var url = 'ws://' + document.location.host + '/video';
+                let ws = new WebSocket(url);
+                let image = document.getElementById('frame');
+                image.onload = function () {
+                    URL.revokeObjectURL(this.src); // release the blob URL once the image is loaded
+                };
+                ws.onmessage = function (event) {
+                    image.src = URL.createObjectURL(event.data);
+                };
+            </script>
+        </div>
     </body>
     <script src="script.js"></script>
 </html>
