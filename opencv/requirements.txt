@@ -1,6 +1,6 @@
 fastapi
 uvicorn[standard]
-pyserial
+gunicorn
 opencv-python-headless
 pydantic
 websockets

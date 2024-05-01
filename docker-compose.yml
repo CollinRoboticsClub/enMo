@@ -4,21 +4,39 @@
 #   don't commit that change since it's system-specific. Also, ONLY CHANGE THE SOURCE, not
 #   the "target:" path below.
 
+networks:
+  chessbot:
+
 services:
   web-stack:
-    container_name: chessbot
+    container_name: chessbot-web-stack
     # image: ghcr.io/collinroboticsclub/chessbot-pi:latest
     build:
-      context: .
+      context: ./web-stack
       dockerfile: ./Dockerfile
     privileged: true
+    networks:
+      - chessbot
     volumes:
       - type: bind
         source: /dev/ttyUSB0 # might need to change this
         target: /dev/ttyUSB0 # DO NOT CHANGE THIS ONE
+    ports:
+      - 8000:8000
+    # restart: unless-stopped
+  camera-processor:
+    container_name: chessbot-camera-processor
+    # image: ghcr.io/collinroboticsclub/chessbot-pi:latest
+    build:
+      context: ./opencv
+      dockerfile: ./Dockerfile
+    privileged: true
+    networks:
+      - chessbot
+    volumes:
       - type: bind
         source: /dev/video0 # might need to change this
         target: /dev/video0 # DO NOT CHANGE THIS ONE
     ports:
-      - 8000:8000
+      - 8001:8000
     # restart: unless-stopped
