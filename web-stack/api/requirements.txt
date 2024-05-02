@@ -9,4 +9,5 @@ pyserial
 
 # Arm servos
 adafruit-circuitpython-servokit
+RPi.GPIO
 smbus

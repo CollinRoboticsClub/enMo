@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 
+from arduino_serial_utils import ArduinoSerialConnection
+from arm_servos import Arm
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
-
-from arduino_serial_utils import ArduinoSerialConnection
-from arm_servos import Arm
 
 
 class MovementPacket(BaseModel):
