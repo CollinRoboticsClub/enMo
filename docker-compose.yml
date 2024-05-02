@@ -33,10 +33,6 @@ services:
     privileged: true
     networks:
       - chessbot
-    # volumes:
-    #   - type: bind
-    #     source: /dev/video0 # might need to change this
-    #     target: /dev/video0 # DO NOT CHANGE THIS ONE
     ports:
       - 8001:8000
     # restart: unless-stopped
