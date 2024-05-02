@@ -31,8 +31,16 @@ def main():
 
 def sweeping_test():
     # WEEPING test bruh
-    
+    pass
 
 
 if __name__ == "__main__":
-    main()
+    # main()
+    # blink the built in led on the pico w
+    from machine import Pin
+
+    led = Pin("LED", Pin.OUT)
+    
+    while True:
+        led.toggle()
+        time.sleep(1)
