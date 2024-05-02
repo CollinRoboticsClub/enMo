@@ -1,0 +1,13 @@
+# FastAPI server stuff
+fastapi
+uvicorn[standard]
+gunicorn
+pydantic
+
+# Serial
+pyserial
+
+# Arm servos
+adafruit-circuitpython-servokit
+RPi.GPIO
+smbus

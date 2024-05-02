@@ -6,6 +6,7 @@
 # sudo apt-get install i2c-tools # not strictly required!
 
 import time
+
 from adafruit_servokit import ServoKit
 
 # PINOUT
@@ -28,6 +29,7 @@ def main():
         kit.servo[i].angle = 90
 
         time.sleep(1)
+
 
 def sweeping_test():
     # WEEPING test bruh

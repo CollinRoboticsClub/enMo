@@ -20,9 +20,10 @@ const joystickRobotRotation = new JoyStick(
     joystickOptions
 );
 
+const sendDataIntervalMS = 200;
 const intervalId = window.setInterval(function () {
     sendData();
-}, 100);
+}, sendDataIntervalMS);
 
 // Clamp value to [-100, 100] to work around bug of joysticks sometimes going out of their intended bounds
 function clamp(number) {

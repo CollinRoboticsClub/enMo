@@ -1,0 +1,6 @@
+fastapi
+uvicorn[standard]
+gunicorn
+opencv-python-headless
+pydantic
+websockets

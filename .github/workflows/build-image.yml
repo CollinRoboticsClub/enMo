@@ -1,4 +1,4 @@
-name: Create and publish image that runs on the robot's Raspberry Pi
+name: Create and publish images that run on the robot's Raspberry Pi
 
 on:
   push:
@@ -6,15 +6,18 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/chessbot-pi
+  IMAGE_PREFIX: ${{ github.repository_owner }}/chessbot
+
+permissions:
+  contents: read
+  packages: write
 
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
+    strategy:
+      matrix:
+        image_name: ["web-stack", "opencv"]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -34,7 +37,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5.5.1
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-${{ matrix.image_name }}
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=raw,value={{sha}}
@@ -42,7 +45,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5.1.0
         with:
-          context: .
+          context: ./${{ matrix.image_name }}
           platforms: linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
