@@ -1,5 +1,12 @@
+# FastAPI server stuff
 fastapi
 uvicorn[standard]
 gunicorn
-pyserial
 pydantic
+
+# Serial
+pyserial
+
+# Arm servos
+adafruit-circuitpython-servokit
+smbus

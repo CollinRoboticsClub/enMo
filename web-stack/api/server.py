@@ -6,6 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from arduino_serial_utils import ArduinoSerialConnection
+from arm_servos import Arm
 
 
 class MovementPacket(BaseModel):
@@ -16,6 +17,7 @@ class MovementPacket(BaseModel):
 
 # globals
 arduino_serial = ArduinoSerialConnection("/dev/ttyUSB0")
+arm = Arm()
 app = FastAPI(root_path="/api")
 
 
@@ -48,6 +50,7 @@ async def move_arm(movement_packet: MovementPacket):
     y = movement_packet.y
 
     # TODO: implement this
+    # arm.???
 
     return 0
 

@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 
-# TODO:
-# - enable USB boot in Pi's firmware just in case some sd card shenanigans happen
-# - test this script
+# Basic setup script for the robot's Raspberry Pi 4
+#
+# It's not perfect because honestly it's more of a setup reference
+# than something we actually run regularly, but it should be good enough.
+
+# TODO: enable USB boot in Pi's firmware just in case some sd card shenanigans happen
 
 # Constants
 readonly CONTAINER_DIR=/opt/chessbot
@@ -13,9 +16,15 @@ if [ "$EUID" -ne 0 ]; then
 	return 1
 fi
 
-# Install docker
+# Update and upgrade
 apt update
 apt upgrade
+
+# Apparently required for the arm servos
+apt install i2c-tools
+raspi-config nonint do_i2c 0 # enable i2c
+
+# Install docker
 apt install docker.io docker-compose-plugin # might wanna add Docker's apt repo for Compose V2???
 
 # Make docker-compose file
