@@ -1,59 +1,32 @@
 <!doctype html>
 <html lang="en">
-    <script src="joy.js"></script>
-    <style>
-        .row {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: center;
-        }
-        .joystick {
-            width: 250px;
-            height: 250px;
-            margin: 25px 50px; /* top/bottom | left/right */
-        }
-        .joystickLabel {
-            text-align: center;
-            margin: 0px;
-        }
-    </style>
+<script src="joy.js"></script>
 
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>Chess_-_Bot</title>
-    </head>
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Chess_-_Bot</title>
+    <link rel="stylesheet" href="styles.css"/>
+</head>
 
-    <body>
-        <h1>Robot and stuff</h1>
-        <div class="row">
-            <div id="joystickRobotPosition" class="joystick">
-                <p class="joystickLabel">Robot Position</p>
-            </div>
-            <div id="joystickRobotRotation" class="joystick">
-                <p class="joystickLabel">Robot Rotation</p>
-            </div>
-            <!-- <div id="joystickArmRotation" class="joystick"> -->
-            <!--     <p class="joystickLabel">Arm Rotation</p> -->
-            <!-- </div> -->
-        </div>
-        <div class="container">
-            <h3>Webcam Stream</h3>
-            <img src="http://localhost:8001/video" />
-            <!-- <img id="frame" /> -->
-            <!-- <script> -->
-            <!--     var url = 'ws://' + document.location.hostname + ':8001/video'; // container serving camera endpoint runs on different port -->
-            <!--     let ws = new WebSocket(url); -->
-            <!--     let image = document.getElementById('frame'); -->
-            <!--     image.onload = function () { -->
-            <!--         URL.revokeObjectURL(this.src); // release the blob URL once the image is loaded -->
-            <!--     }; -->
-            <!--     ws.onmessage = function (event) { -->
-            <!--         image.src = URL.createObjectURL(event.data); -->
-            <!--     }; -->
-            <!-- </script> -->
-        </div>
-    </body>
-    <script src="script.js"></script>
+<body>
+<h1>Robot and stuff</h1>
+<div class="row">
+    <div id="joystickRobotPosition" class="joystick">
+        <p class="joystickLabel">Robot Position</p>
+    </div>
+    <div class="container">
+        <h3>Webcam Stream</h3>
+        <img src="http://localhost:8001/video" alt="Robot POV live-stream" width="640" height="360"/>
+    </div>
+    <div id="joystickRobotRotation" class="joystick">
+        <p class="joystickLabel">Robot Rotation</p>
+    </div>
+    <!-- <div id="joystickArmRotation" class="joystick"> -->
+    <!--     <p class="joystickLabel">Arm Rotation</p> -->
+    <!-- </div> -->
+</div>
+
+</body>
+<script src="script.js"></script>
 </html>
