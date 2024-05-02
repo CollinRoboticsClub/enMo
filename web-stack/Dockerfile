@@ -1,5 +1,15 @@
 FROM python:slim-bookworm
 
+# Install packages
+# i2c-tools             : arm servos
+# gcc, libc6-dev, make  : building wheel packages using pip
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && \
+	apt-get -y upgrade && \
+	apt-get -y install --no-install-recommends \
+	i2c-tools gcc libc6-dev make && \
+	rm -rf /var/lib/apt/lists/*
+
 WORKDIR /opt/app
 
 COPY ./api/requirements.txt ./
