@@ -1,18 +1,29 @@
 .row {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
+    /*flex-wrap: wrap;*/
+    /*align-items: center;*/
+    justify-content: space-between;
 }
+
 .joystick {
     width: 250px;
     height: 250px;
     margin: 25px 50px; /* top/bottom | left/right */
 }
+
 .joystickLabel {
     text-align: center;
-    margin: 0px;
+    margin: 0;
 }
+
+.videoStream {
+    margin: 50px; /* top/bottom */
+}
+
+h1, h2, h3, h4, h5, h6 {
+    text-align: center;
+}
+
 body {
     /* Font/Text */
     font-size: 18px;

@@ -1,17 +1,26 @@
 #!/usr/bin/env python3
 
-from arduino_serial_utils import ArduinoSerialConnection
-from arm_servos import Arm
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
+from arduino_serial_utils import ArduinoSerialConnection
+from arm_servos import Arm
 
-class MovementPacket(BaseModel):
+
+class WheelMovementPacket(BaseModel):
     x: float
     y: float
     rotation: float
+
+
+class ArmMovementPacket(BaseModel):
+    base_angle: int
+    shoulder_angle: int
+    elbow_angle: int
+    wrist_angle: int
+    gripper_angle: int
 
 
 # globals
@@ -21,7 +30,7 @@ app = FastAPI(root_path="/api")
 
 
 @app.post("/move-wheels")
-async def move_wheels(movement_packet: MovementPacket):
+async def move_wheels(movement_packet: WheelMovementPacket):
     # TODO: handle abrupt disconnect (pseudocode below)
     # currently, if the client abruptly disconnects and the last packet sent was
     # contained a non-zero value, the robot would continue that movement until
@@ -44,12 +53,18 @@ async def move_wheels(movement_packet: MovementPacket):
 
 
 @app.post("/move-arm")
-async def move_arm(movement_packet: MovementPacket):
-    x = movement_packet.x
-    y = movement_packet.y
+async def move_arm(movement_packet: ArmMovementPacket):
+    arm_base_rotation = movement_packet.base_angle
+    arm_shoulder_rotation = movement_packet.shoulder_angle
+    arm_elbow_rotation = movement_packet.elbow_angle
+    arm_wrist_rotation = movement_packet.wrist_angle
+    arm_gripper_rotation = movement_packet.gripper_angle
 
-    # TODO: implement this
-    # arm.???
+    arm.move_base(arm_base_rotation)
+    arm.move_shoulder(arm_shoulder_rotation)
+    arm.move_elbow(arm_elbow_rotation)
+    arm.move_wrist(arm_wrist_rotation)
+    arm.move_gripper(arm_gripper_rotation)
 
     return 0
 
