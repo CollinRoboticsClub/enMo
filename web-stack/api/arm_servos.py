@@ -4,7 +4,7 @@ import time
 from adafruit_servokit import ServoKit
 
 # Global debugging constant
-MOCK_SERVOS_FOR_DEBUGGING = True
+MOCK_SERVOS_FOR_DEBUGGING = False
 
 # TODO: Verify what the actual max/min values are
 SERVO_MAX_ANGLE = 180
