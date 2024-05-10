@@ -8,16 +8,13 @@ MOCK_SERVOS_FOR_DEBUGGING = False
 
 # TODO: Verify what the actual max/min values are
 SERVO_MAX_ANGLE = 180
-SERVO_MIN_ANGLE = -180
+SERVO_MIN_ANGLE = 0
 
 
 # Generic servo movement functions
 def set_servo_angle(servo, absolute_angle):
     # Clamp values to valid range
-    if absolute_angle > SERVO_MAX_ANGLE:
-        print(f"provided angle is out of range, ignoring it")
-        return
-    if absolute_angle < SERVO_MIN_ANGLE:
+    if absolute_angle > SERVO_MAX_ANGLE or absolute_angle < SERVO_MIN_ANGLE:
         print(f"provided angle is out of range, ignoring it")
         return
 
@@ -73,6 +70,13 @@ class Arm:
         self.wrist = kit.servo[3]
         self.gripper = kit.servo[4]
         self.servo_list = kit.servo
+
+        # init servos to safe angle
+        self.base.angle = 90
+        self.shoulder.angle = 90
+        self.elbow.angle = 90
+        self.wrist.angle = 90
+        self.gripper.angle = 90
 
         # Define absolute movement methods for all servos
         self.set_base_angle = functools.partial(set_servo_angle, self.base)

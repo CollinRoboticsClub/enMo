@@ -1,7 +1,6 @@
-const API_SERVER_IP = location.origin;
-const API_SERVER_URL = `${API_SERVER_IP}/api`;
-const API_ENDPOINT_WHEELS = `${API_SERVER_URL}/move-wheels`;
-const API_ENDPOINT_ARM = `${API_SERVER_URL}/move-arm`;
+const API_SERVER_WS_URL = `ws://${location.host}/api`;
+const API_ENDPOINT_WHEELS = `${API_SERVER_WS_URL}/wheels/move`;
+const API_ENDPOINT_ARM = `${API_SERVER_WS_URL}/arm/move`;
 
 // init joysticks
 const joystickOptions = {
@@ -27,33 +26,30 @@ const joystickArmElbowWrist = new JoyStick(
     'joystickArmElbowWrist',
     joystickOptions
 );
-const joystickArmGripper = new JoyStick(
-    'joystickArmGripper',
-    joystickOptions
-);
+const joystickArmGripper = new JoyStick('joystickArmGripper', joystickOptions);
 
+var ws_arm = new WebSocket(API_ENDPOINT_ARM);
+var ws_wheels = new WebSocket(API_ENDPOINT_WHEELS);
 
-const sendDataIntervalMS = 200;
-window.setInterval(function () {
-    sendWheelData();
-    sendArmData();
-}, sendDataIntervalMS);
+const sendWheelDataIntervalMS = 100;
+const sendArmDataIntervalMS = 25;
+
+ws_wheels.onopen = (event) => {
+    window.setInterval(function () {
+        sendWheelData();
+    }, sendWheelDataIntervalMS);
+};
+ws_arm.onopen = (event) => {
+    window.setInterval(function () {
+        sendArmData();
+    }, sendArmDataIntervalMS);
+};
 
 // Clamp value to [-100, 100] to work around bug of joysticks sometimes going out of their intended bounds
 function clamp(number) {
     let min = -100;
     let max = 100;
     return Math.max(min, Math.min(number, max));
-}
-
-function sendData(jsonData, endpoint) {
-    console.log(jsonData); // DEBUGGING:
-
-    fetch(endpoint, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(jsonData),
-    });
 }
 
 function sendWheelData() {
@@ -70,13 +66,13 @@ function sendWheelData() {
 
     for (const value in wheelData) {
         // clamp values to address bug mentioned above clamp() declaration
-        wheelData[value] = clamp(wheelData[value])
+        wheelData[value] = clamp(wheelData[value]);
 
         // change wheel range from [-100, 100] to [-1, 1]
-        wheelData[value] /= 100
+        wheelData[value] /= 100;
     }
 
-    sendData(wheelData, API_ENDPOINT_WHEELS);
+    ws_wheels.send(JSON.stringify(wheelData));
 }
 
 function sendArmData() {
@@ -93,10 +89,17 @@ function sendArmData() {
         shoulder_angle: armShoulderRotation,
         elbow_angle: armElbowRotation,
         wrist_angle: armWristRotation,
-        gripper_angle: armGripperRotation
+        gripper_angle: armGripperRotation,
     };
 
+    let allZeroes = true;
     for (const servo in armData) {
+        if (armData[servo] == 0) {
+            continue;
+        } else {
+            allZeroes = false;
+        }
+
         // clamp values to address bug mentioned above clamp() declaration
         armData[servo] = clamp(armData[servo]);
 
@@ -107,8 +110,10 @@ function sendArmData() {
         armData[servo] /= 10;
 
         // turn into int
-        armData[servo] = Math.trunc(armData[servo])
+        armData[servo] = Math.trunc(armData[servo]);
     }
 
-    sendData(armData, API_ENDPOINT_ARM);
+    if (!allZeroes) {
+        ws_arm.send(JSON.stringify(armData));
+    }
 }

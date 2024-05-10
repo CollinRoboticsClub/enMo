@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+from websockets.exceptions import ConnectionClosed
 
 from arduino_serial_utils import ArduinoSerialConnection
 from arm_servos import Arm
@@ -24,47 +25,60 @@ class ArmMovementPacket(BaseModel):
 
 
 # globals
-arduino_serial = ArduinoSerialConnection("/dev/ttyUSB0")
 arm = Arm()
 app = FastAPI(root_path="/api")
 
 
-@app.post("/move-wheels")
-async def move_wheels(movement_packet: WheelMovementPacket):
-    # TODO: handle abrupt disconnect (pseudocode below)
-    # currently, if the client abruptly disconnects and the last packet sent was
-    # contained a non-zero value, the robot would continue that movement until
-    # it eventually received something else once someone connected again.
-    #
-    #   if (no movement packet received within last X seconds):
-    #       send "0 0 0" to make the robot stop moving
-    #
-    # Best way to handle this may be yet another producer-consumer where the producer
-    # are the API endpoints and the consumer is an async queue that sends
-    # the serial events as they're added. Because then it can have some sort of simple
-    # global timer handling maybe. or I could do that here but that seems a bit messier.
+@app.websocket("/wheels/move")
+async def move_wheels(websocket: WebSocket):
+    await websocket.accept()
+    print("client connected to wheels websocket")
+    arduino_serial = ArduinoSerialConnection("/dev/ttyUSB0")
+    try:
+        while True:
+            movement_packet = await websocket.receive_json()
 
-    x = movement_packet.x
-    y = movement_packet.y
-    rotation = movement_packet.rotation
-    arduino_serial.send(f"{x} {y} {rotation}")
+            x = movement_packet["x"]
+            y = movement_packet["y"]
+            rotation = movement_packet["rotation"]
 
-    return 0
+            arduino_serial.send(f"{x} {y} {rotation}")
+    except (WebSocketDisconnect, ConnectionClosed):
+        arduino_serial.send(f"0 0 0")  # stop motors
+        del arduino_serial  # closes serial connection
+        print("client disconnected from wheels websocket")
 
 
-@app.post("/move-arm")
-async def move_arm(movement_packet: ArmMovementPacket):
-    arm_base_rotation = movement_packet.base_angle
-    arm_shoulder_rotation = movement_packet.shoulder_angle
-    arm_elbow_rotation = movement_packet.elbow_angle
-    arm_wrist_rotation = movement_packet.wrist_angle
-    arm_gripper_rotation = movement_packet.gripper_angle
+@app.websocket("/arm/move")
+async def move_arm(websocket: WebSocket):
+    await websocket.accept()
+    print("client connected to arm websocket")
+    try:
+        while True:
+            movement_packet = await websocket.receive_json()
 
-    arm.move_base(arm_base_rotation)
-    arm.move_shoulder(arm_shoulder_rotation)
-    arm.move_elbow(arm_elbow_rotation)
-    arm.move_wrist(arm_wrist_rotation)
-    arm.move_gripper(arm_gripper_rotation)
+            arm_base_rotation = movement_packet["base_angle"]
+            arm_shoulder_rotation = movement_packet["shoulder_angle"]
+            arm_elbow_rotation = movement_packet["elbow_angle"]
+            arm_wrist_rotation = movement_packet["wrist_angle"]
+            arm_gripper_rotation = movement_packet["gripper_angle"]
+
+            arm.move_base(arm_base_rotation)
+            arm.move_shoulder(arm_shoulder_rotation)
+            arm.move_elbow(arm_elbow_rotation)
+            arm.move_wrist(arm_wrist_rotation)
+            arm.move_gripper(arm_gripper_rotation)
+    except (WebSocketDisconnect, ConnectionClosed):
+        print("client disconnected from arm websocket")
+
+
+@app.post("/arm/preset/default")
+async def move_arm_preset():
+    # arm.set_base_angle(0)
+    arm.set_shoulder_angle(90)
+    arm.set_elbow_angle(135)
+    arm.set_wrist_angle(135)
+    # arm.set_gripper_angle(0)
 
     return 0
 
