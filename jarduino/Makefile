@@ -1,3 +1,4 @@
+# Make sure to use atmega328old for Josh's Arduino Nanos!
 BUILD_ARGS := --clean --verify --fqbn arduino:avr:nano:cpu=atmega328old
 # BUILD_ARGS := --clean --verify --fqbn arduino:avr:nano:cpu=atmega328
 

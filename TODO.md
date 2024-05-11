@@ -1,11 +1,5 @@
-TODO Right Now - 4/25/24 overnight - josh 😢😢😢😢😢😭😭
-
-- Arm code
-  - PCA9685 to Pi - using python, perhaps... might be quick
-
-- Drive code
-  - SquareDrive class
-    - uses existing Motor class
+TODO from 5/11/24 - Josh!
+  (Check a previous GitHub version of this for older tasks that are complete if you need to.)
 
 - Make a TESTING ROUTINES .MD ! ! !
   - Drive
@@ -16,16 +10,17 @@ TODO Right Now - 4/25/24 overnight - josh 😢😢😢😢😢😭😭
     - Instructions to test arm directions and switch them incrementally
 
 
-
 # What if we make it run some autonomous demos for Friday...?
 Just for HARDWARE proof that it can run off that???
-This might mean NOT using the WebUI
+This might mean NOT using the WebUI... or maybe the WebUI has control to start and stop it? ;)
 
+- Finish the README eventually LOL, plus *some* docs
 
 ---
 In theory, nice to have:
   - AIMING, which needs:
     - webcam access, ideally streaming the opencv output to the webserver
       - consider... CameraServer??? https://docs.wpilib.org/en/stable/docs/software/vision-processing/wpilibpi/using-cameraserver.html
+      - *update:* this has been addressed via WebSockets... perchance?
     - a PID controller or other motion controller to point the drivetrain at that spot
       - not impossible... but takes *LOTS of time!*
