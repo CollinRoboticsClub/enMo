@@ -1,6 +1,8 @@
 # Robot stuff
 
-TODO: actual readme
+Built off of our earlier robot arm project. The source code for that is [here](https://github.com/CollinRoboticsClub/robot-arm-2024).
+
+TODO: finish readme
 
 Notes:
 

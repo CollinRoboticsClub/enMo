@@ -1,8 +1,7 @@
-const API_SERVER_IP = location.host;
-const API_SERVER_URL = `http://${API_SERVER_IP}/api`;
-const API_ENDPOINT_WHEELS = `${API_SERVER_URL}/move-wheels`;
+const API_SERVER_WS_URL = `ws://${location.host}/api`;
+const API_ENDPOINT_WHEELS = `${API_SERVER_WS_URL}/wheels/move`;
+const API_ENDPOINT_ARM = `${API_SERVER_WS_URL}/arm/move`;
 
-// TODO: make a way to send claw close/open and arm up/down input in UI and implement it API-side
 // init joysticks
 const joystickOptions = {
     internalFillColor: '#AA0000',
@@ -19,11 +18,32 @@ const joystickRobotRotation = new JoyStick(
     'joystickRobotRotation',
     joystickOptions
 );
+const joystickArmBaseShoulder = new JoyStick(
+    'joystickArmBaseShoulder',
+    joystickOptions
+);
+const joystickArmElbowWrist = new JoyStick(
+    'joystickArmElbowWrist',
+    joystickOptions
+);
+const joystickArmGripper = new JoyStick('joystickArmGripper', joystickOptions);
 
-const sendDataIntervalMS = 200;
-const intervalId = window.setInterval(function () {
-    sendData();
-}, sendDataIntervalMS);
+var ws_arm = new WebSocket(API_ENDPOINT_ARM);
+var ws_wheels = new WebSocket(API_ENDPOINT_WHEELS);
+
+const sendWheelDataIntervalMS = 100;
+const sendArmDataIntervalMS = 25;
+
+ws_wheels.onopen = (event) => {
+    window.setInterval(function () {
+        sendWheelData();
+    }, sendWheelDataIntervalMS);
+};
+ws_arm.onopen = (event) => {
+    window.setInterval(function () {
+        sendArmData();
+    }, sendArmDataIntervalMS);
+};
 
 // Clamp value to [-100, 100] to work around bug of joysticks sometimes going out of their intended bounds
 function clamp(number) {
@@ -32,32 +52,68 @@ function clamp(number) {
     return Math.max(min, Math.min(number, max));
 }
 
-function sendData() {
-    let x = Number(joystickRobotPosition.GetX());
-    let y = Number(joystickRobotPosition.GetY());
-    let rotation_magnitude = Number(joystickRobotRotation.GetX());
+function sendWheelData() {
+    // wheels
+    let wheelX = Number(joystickRobotPosition.GetX());
+    let wheelY = Number(joystickRobotPosition.GetY());
+    let wheelRotationMagnitude = Number(joystickRobotRotation.GetX());
 
-    // clamp values to address bug mentioned above clamp() declaration
-    x = clamp(x);
-    y = clamp(y);
-    rotation_magnitude = clamp(rotation_magnitude);
-
-    // change range from [-100, 100] to [-1, 1]
-    x /= 100;
-    y /= 100;
-    rotation_magnitude /= 100;
-
-    let data = {
-        x: x,
-        y: y,
-        rotation: rotation_magnitude,
+    let wheelData = {
+        x: wheelX,
+        y: wheelY,
+        rotation: wheelRotationMagnitude,
     };
 
-    console.log(data); // DEBUGGING:
+    for (const value in wheelData) {
+        // clamp values to address bug mentioned above clamp() declaration
+        wheelData[value] = clamp(wheelData[value]);
 
-    fetch(API_ENDPOINT_WHEELS, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-    });
+        // change wheel range from [-100, 100] to [-1, 1]
+        wheelData[value] /= 100;
+    }
+
+    ws_wheels.send(JSON.stringify(wheelData));
+}
+
+function sendArmData() {
+    // arm
+    let armBaseRotation = Number(joystickArmBaseShoulder.GetX());
+    let armShoulderRotation = Number(joystickArmBaseShoulder.GetY());
+    let armElbowRotation = Number(joystickArmElbowWrist.GetX());
+    let armWristRotation = Number(joystickArmElbowWrist.GetY());
+    let armGripperRotation = Number(joystickArmGripper.GetX());
+    let armUnusedRotation = Number(joystickArmGripper.GetY());
+
+    let armData = {
+        base_angle: armBaseRotation,
+        shoulder_angle: armShoulderRotation,
+        elbow_angle: armElbowRotation,
+        wrist_angle: armWristRotation,
+        gripper_angle: armGripperRotation,
+    };
+
+    let allZeroes = true;
+    for (const servo in armData) {
+        if (armData[servo] == 0) {
+            continue;
+        } else {
+            allZeroes = false;
+        }
+
+        // clamp values to address bug mentioned above clamp() declaration
+        armData[servo] = clamp(armData[servo]);
+
+        // TODO: check if this speed is fine, if not, adjust it and delete this TODO
+        // Since these are *relative* movements (change in degrees) that we're sending, and we send them pretty
+        // quickly, we wouldn't want to move the servos *too* quickly, so:
+        // change arm range from [-100, 100] to [-10, 10]
+        armData[servo] /= 10;
+
+        // turn into int
+        armData[servo] = Math.trunc(armData[servo]);
+    }
+
+    if (!allZeroes) {
+        ws_arm.send(JSON.stringify(armData));
+    }
 }

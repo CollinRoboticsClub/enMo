@@ -23,7 +23,10 @@ def detect_bounding_box(image, cascade_classifier):
         cv2.circle(image, center, 10, (0, 0, 160))
 
 
-def queue_camera_frames(input_video_capture: cv2.VideoCapture, output_frames_queue: mp.Queue):
+def queue_camera_frames(
+        input_video_capture: cv2.VideoCapture,
+        output_frames_queue: mp.Queue
+):
     while True:
         # read frame
         result, video_frame = input_video_capture.read()
@@ -35,7 +38,10 @@ def queue_camera_frames(input_video_capture: cv2.VideoCapture, output_frames_que
         # print("queued camera frame")
 
 
-def encode_processed_frames(input_frames_queue: mp.Queue, output_frames_queue: mp.Queue):
+def encode_processed_frames(
+        input_frames_queue: mp.Queue,
+        output_frames_queue: mp.Queue
+):
     while True:
         current_frame = input_frames_queue.get()
 
@@ -48,9 +54,11 @@ def encode_processed_frames(input_frames_queue: mp.Queue, output_frames_queue: m
         # print("queued encoded frame bytes")
 
 
-def process_camera_frames(input_frames_queue: mp.Queue,
-                          output_frames_queue: mp.Queue,
-                          cascade_classifier: cv2.CascadeClassifier):
+def process_camera_frames(
+        input_frames_queue: mp.Queue,
+        output_frames_queue: mp.Queue,
+        cascade_classifier: cv2.CascadeClassifier
+):
     while True:
         current_frame = input_frames_queue.get()
 
@@ -99,12 +107,12 @@ async def lifespan(app: FastAPI):
         process_camera_frames,
         input_frames_queue=camera_frames_queue,
         output_frames_queue=opencv_processed_queue,
-        cascade_classifier=FACE_CLASSIFIER
+        cascade_classifier=FACE_CLASSIFIER,
     )
     executor.submit(
         encode_processed_frames,
         input_frames_queue=opencv_processed_queue,
-        output_frames_queue=global_encoded_byte_frame_queue
+        output_frames_queue=global_encoded_byte_frame_queue,
     )
     print("done starting camera threads")
 
@@ -130,17 +138,11 @@ async def video_feed():
             if frame is None:
                 break
 
-            print("sending frame!!")
+            # print("sending frame!!")
 
-            yield (
-                    b"--frame\r\n"
-                    b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n"
-            )
+            yield b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n"
 
-    return StreamingResponse(
-        stream_video(),
-        media_type="multipart/x-mixed-replace;boundary=frame"
-    )
+    return StreamingResponse(stream_video(), media_type="multipart/x-mixed-replace;boundary=frame")
 
 
 app.add_middleware(
