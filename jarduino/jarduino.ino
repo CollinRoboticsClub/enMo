@@ -3,60 +3,85 @@
 #include "Motor.cpp"
 #include "SquareDrive.cpp"
 
-// The pin orders are ENA, ENB, and IN, for each motor
-// FIXME Adjust it!
-Motor front(3, 2, 4, false, Motor::BRAKE, 0.2);
-Motor back(9, 12, 13, true, Motor::BRAKE, 0.2);
-Motor left(6, 10, 11, false, Motor::BRAKE, 0.2);
-Motor right(5, 7, 8, true, Motor::BRAKE, 0.2);
+// refer: ./sqaure_drive_pins_from_aubrey_discord.png
+Motor front(3, 2, 4, true, Motor::BRAKE, 0.1); // m4
+Motor back(11, 12, 13, true, Motor::BRAKE, 0.1); // m3
+Motor left(9, 8, 10, true, Motor::BRAKE, 0.1); // m2
+Motor right(5, 6, 7, true, Motor::BRAKE, 0.1); // m1
 
-SquareDrive drive(front, right, left, right);
+SquareDrive setSpeed(front, right, left, back);
 
-double left = 0, right = 0;
+// double left = 0, right = 0;
 
 void setup() {
+    delay(5000);
     Serial.begin(9600);
+    while (Serial.available() == 0) {}
 }
 
 void loop() {
-    // while (true) {
-    //     Serial.println("Hello, world!");
-    //     delay(1000);
-    // }
-    // if (Serial.available() > 0) {
-    //     double left = Serial.parseDouble();
-    //     double right = Serial.parseDouble();
+    if (Serial.available() > 0) {
+        float x = Serial.parseFloat();
+        float y = Serial.parseFloat();
+        float rotation = Serial.parseFloat();
 
-    //     Serial.print("left: ");
-    //     Serial.print(left);
-    //     Serial.print("right: ");
-    //     Serial.println(right);
+        Serial.print("x: ");
+        Serial.print(x);
+        Serial.print(", y: ");
+        Serial.print(y);
+        Serial.print(", rotation: ");
+        Serial.println(rotation);
 
+        setSpeed.setSpeed(x, y, rotation);
+        // Uncomment the following 2 lines if you're just trying to test over serial monitor
+        // and are just typing in inputs!
+        // delay(5000);
+        // setSpeed.setSpeed(0, 0, 0);
+    }
 
-    //     // front.setSpeed(y);
-    //     // right.setSpeed(y);
-    //     // left.setSpeed(y);
-    //     // right.setSpeed(y);
+    // Serial.println("Enter your name to test all the motors: ");
 
-    //     tankdrive.tankDrive(left, right);
-    //     // delay(20000);
-    //     // drive.setSpeed(0, 0, 0);
-    // }
-    // front.setSpeed(0.4);
-    // delay(500);
+    //  block until user hits Enter:
+    // while (Serial.available() == 0) {}
+    // Serial.readString();
+    // sorry yeah irdk how else the serial lib wants me to do that LOL
 
+    // Serial.println("right.setSpeed(0.4);");
+    // delay(1000);
     // right.setSpeed(0.4);
-    // delay(500);
+    // delay(1000);
+    // right.setSpeed(0.0);
+    // delay(1000);
+    // Serial.println("right complete");
+    // delay(1000);
 
+    // Serial.println("left.setSpeed(0.4);");
+    // delay(1000);
     // left.setSpeed(0.4);
-    // delay(500);
+    // delay(1000);
+    // left.setSpeed(0.0);
+    // delay(1000);
+    // Serial.println("left complete");
+    // delay(1000);
 
-    // right.setSpeed(0.4);
-    // delay(500);
+    // Serial.println("back.setSpeed(0.4);");
+    // delay(1000);
+    // back.setSpeed(0.4);
+    // delay(1000);
+    // back.setSpeed(0.0);
+    // delay(1000);
+    // Serial.println("back complete");
+    // delay(1000);
 
-    // drive.tankDrive(left, right);
-    // left += 0.05;
-    // right += 0.05;
+    // Serial.println("front.setSpeed(0.4);");
+    // delay(1000);
+    // front.setSpeed(0.4);
+    // delay(1000);
+    // front.setSpeed(0.0);
+    // delay(1000);
+    // Serial.println("front complete");
+    // delay(1000);
 
-    delay(20);
+
+    delay(50);
 }
