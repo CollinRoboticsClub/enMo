@@ -8,6 +8,7 @@
     <title>Chess_-_Bot</title>
     <link rel="stylesheet" href="styles.css"/>
     <script>
+        // Cleanest way I could quickly find to use $location, but on a different port
         function setHref() {
             document.getElementById('webcamStream').src = window.location.protocol + "//" + window.location.hostname + ":8001/video";
         }
