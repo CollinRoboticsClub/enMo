@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
@@ -25,15 +26,30 @@ class ArmMovementPacket(BaseModel):
 
 
 # globals
-arm = Arm()
-app = FastAPI(root_path="/api")
+global arm, arduino_serial
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Steps that will be performed on startup events only once.
+    print("Starting up...")
+    global arm, arduino_serial
+    arm = Arm()
+    arduino_serial = ArduinoSerialConnection("/dev/ttyUSB0")
+    yield
+
+    # Steps that will happen on shutdown event
+    del arduino_serial  # closes serial connection
+    print("Shutting down...")
+
+
+app = FastAPI(root_path="/api", lifespan=lifespan)
 
 
 @app.websocket("/wheels/move")
 async def move_wheels(websocket: WebSocket):
     await websocket.accept()
     print("client connected to wheels websocket")
-    arduino_serial = ArduinoSerialConnection("/dev/ttyUSB0")
     try:
         while True:
             movement_packet = await websocket.receive_json()
@@ -45,7 +61,6 @@ async def move_wheels(websocket: WebSocket):
             arduino_serial.send(f"{x} {y} {rotation}")
     except (WebSocketDisconnect, ConnectionClosed):
         arduino_serial.send(f"0 0 0")  # stop motors
-        del arduino_serial  # closes serial connection
         print("client disconnected from wheels websocket")
 
 
