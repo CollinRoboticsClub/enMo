@@ -3,43 +3,58 @@ const API_ENDPOINT_WHEELS = `${API_SERVER_WS_URL}/wheels/move`;
 const API_ENDPOINT_ARM = `${API_SERVER_WS_URL}/arm/move`;
 
 // init joysticks
-const joystickOptions = {
+const joystickWheelsOptions = {
     internalFillColor: '#AA0000',
     internalStrokeColor: '#330000',
     internalLineWidth: 2,
     externalStrokeColor: '#800000',
     externalLineWidth: 2,
 };
+const joystickArmOptions = {
+    internalFillColor: '#0000AA',
+    internalStrokeColor: '#000033',
+    internalLineWidth: 2,
+    externalStrokeColor: '#000080',
+    externalLineWidth: 2,
+};
 const joystickRobotPosition = new JoyStick(
     'joystickRobotPosition',
-    joystickOptions
+    "assets/cross-arrows-icon.webp",
+    joystickWheelsOptions
 );
 const joystickRobotRotation = new JoyStick(
     'joystickRobotRotation',
-    joystickOptions
+    "assets/rotate-icon.webp",
+    joystickWheelsOptions
 );
 const joystickArmBaseShoulder = new JoyStick(
     'joystickArmBaseShoulder',
-    joystickOptions
+    null,
+    joystickArmOptions
 );
 const joystickArmElbowWrist = new JoyStick(
     'joystickArmElbowWrist',
-    joystickOptions
+    null,
+    joystickArmOptions
 );
-const joystickArmGripper = new JoyStick('joystickArmGripper', joystickOptions);
+const joystickArmGripper = new JoyStick(
+    'joystickArmGripper',
+    null,
+    joystickArmOptions
+);
 
-var ws_arm = new WebSocket(API_ENDPOINT_ARM);
-var ws_wheels = new WebSocket(API_ENDPOINT_WHEELS);
+const wsArm = new WebSocket(API_ENDPOINT_ARM);
+const wsWheels = new WebSocket(API_ENDPOINT_WHEELS);
 
 const sendWheelDataIntervalMS = 100;
 const sendArmDataIntervalMS = 25;
 
-ws_wheels.onopen = (event) => {
+wsWheels.onopen = (_) => {
     window.setInterval(function () {
         sendWheelData();
     }, sendWheelDataIntervalMS);
 };
-ws_arm.onopen = (event) => {
+wsArm.onopen = (_) => {
     window.setInterval(function () {
         sendArmData();
     }, sendArmDataIntervalMS);
@@ -57,6 +72,7 @@ function sendWheelData() {
     let wheelX = Number(joystickRobotPosition.GetX());
     let wheelY = Number(joystickRobotPosition.GetY());
     let wheelRotationMagnitude = Number(joystickRobotRotation.GetX());
+    //let unused = Number(joystickRobotRotation.GetY());
 
     let wheelData = {
         x: wheelX,
@@ -72,7 +88,7 @@ function sendWheelData() {
         wheelData[value] /= 100;
     }
 
-    ws_wheels.send(JSON.stringify(wheelData));
+    wsWheels.send(JSON.stringify(wheelData));
 }
 
 function sendArmData() {
@@ -82,7 +98,7 @@ function sendArmData() {
     let armElbowRotation = Number(joystickArmElbowWrist.GetX());
     let armWristRotation = Number(joystickArmElbowWrist.GetY());
     let armGripperRotation = Number(joystickArmGripper.GetX());
-    let armUnusedRotation = Number(joystickArmGripper.GetY());
+    //let armUnusedRotation = Number(joystickArmGripper.GetY());
 
     let armData = {
         base_angle: armBaseRotation,
@@ -94,7 +110,7 @@ function sendArmData() {
 
     let allZeroes = true;
     for (const servo in armData) {
-        if (armData[servo] == 0) {
+        if (armData[servo] === 0) {
             continue;
         } else {
             allZeroes = false;
@@ -114,6 +130,6 @@ function sendArmData() {
     }
 
     if (!allZeroes) {
-        ws_arm.send(JSON.stringify(armData));
+        wsArm.send(JSON.stringify(armData));
     }
 }

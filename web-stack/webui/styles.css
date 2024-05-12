@@ -1,7 +1,5 @@
 .row {
     display: flex;
-    /*flex-wrap: wrap;*/
-    /*align-items: center;*/
     justify-content: space-between;
 }
 
@@ -24,12 +22,27 @@ h1, h2, h3, h4, h5, h6 {
     text-align: center;
 }
 
+/* Light mode */
+:root {
+    --body-bg-color: #EEE;
+    --body-color: #444;
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --body-bg-color: #1A1A1A;
+        --body-color: #CCC;
+    }
+}
+
 body {
     /* Font/Text */
     font-size: 18px;
     line-height: 1.6;
+    text-align: center;
 
     /* Colors */
-    color: #444;
-    background-color: #eeeeee;
+    background: var(--body-bg-color);
+    color: var(--body-color);
 }
