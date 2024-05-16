@@ -38,7 +38,7 @@ void loop() {
         // delay(5000);
         // squareDrive.setSpeed(0, 0, 0);
     }
-    delay(50);
+    delay(10);
 }
 
 // void loop() {
