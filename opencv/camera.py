@@ -14,7 +14,7 @@ from fastapi.responses import StreamingResponse
 def detect_bounding_box(image, cascade_classifier):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    faces = cascade_classifier.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(40, 40))
+    faces = cascade_classifier.detectMultiScale(gray, scaleFactor=1.3, minNeighbors=5, minSize=(40, 40))
     for x, y, w, h in faces:
         cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 4)
 
