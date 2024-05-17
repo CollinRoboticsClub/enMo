@@ -1,96 +1,61 @@
-import functools
 import time
 
+from adafruit_motor.servo import Servo
 from adafruit_servokit import ServoKit
 
-# Global debugging constant
-MOCK_SERVOS_FOR_DEBUGGING = False
 
-# TODO: Verify what the actual max/min values are
-SERVO_MAX_ANGLE = 180
-SERVO_MIN_ANGLE = 0
+class SafeServo:
+    def __init__(self, servo: Servo, initial_angle: int, min_angle: int, max_angle: int):
+        self.servo = servo
+        self.servo.angle = initial_angle
+        self.min_angle = min_angle
+        self.max_angle = max_angle
 
+    def set_angle(self, absolute_angle):
+        # Clamp values to valid range
+        if absolute_angle > self.max_angle or absolute_angle < self.min_angle:
+            # print(f"provided angle is out of range, ignoring it")
+            return
 
-# Generic servo movement functions
-def set_servo_angle(servo, absolute_angle):
-    # Clamp values to valid range
-    if absolute_angle > SERVO_MAX_ANGLE or absolute_angle < SERVO_MIN_ANGLE:
-        print(f"provided angle is out of range, ignoring it")
-        return
+        # Don't do anything if servo angle is already correct
+        if absolute_angle == self.servo.angle:
+            # print(f"servo is already at this angle, ignoring it")
+            return
 
-    # Don't do anything if servo angle is already correct
-    if absolute_angle == servo.angle:
-        print(f"servo is already at this angle, ignoring it")
-        return
+        self.servo.angle = absolute_angle
 
-    servo.angle = absolute_angle
+    def move(self, relative_angle):
+        absolute_angle = self.servo.angle + relative_angle
 
-    if MOCK_SERVOS_FOR_DEBUGGING:
-        print(f"set {servo.name} to angle {absolute_angle}")
-    else:
-        print(f"set servo to angle {absolute_angle}")
-
-
-def move_servo(servo, relative_angle):
-    absolute_angle = servo.angle + relative_angle
-
-    return set_servo_angle(servo, absolute_angle)
-
-
-# These classes are just for easy debugging without needing to have the actual hardware attached
-class MockServo:
-    def __init__(self, name):
-        self.name = name
-        self.angle = 0
-
-
-class MockServoKit:
-    def __init__(self):
-        servo_name_list = ["base", "shoulder", "elbow", "wrist", "gripper"]
-        servo_instance_list = []
-        for servo in servo_name_list:
-            servo_instance_list.append(MockServo(servo))
-
-        self.servo = servo_instance_list
+        return self.set_angle(absolute_angle)
 
 
 class Arm:
     def __init__(self):
-        if MOCK_SERVOS_FOR_DEBUGGING:
-            kit = MockServoKit()
-        else:
-            kit = ServoKit(channels=16)
+        kit = ServoKit(channels=16)
 
         # PINOUT
-        # FIXME: As of writing, this is wrong lol -- fix on Friday!
-        # I know we have 5 servos...
-        self.base = kit.servo[0]
-        self.shoulder = kit.servo[1]
-        self.elbow = kit.servo[2]
-        self.wrist = kit.servo[3]
-        self.gripper = kit.servo[4]
+        self.base = SafeServo(kit.servo[0], initial_angle=90, min_angle=70, max_angle=110)
+        self.shoulder = SafeServo(kit.servo[1], initial_angle=90, min_angle=40, max_angle=180)
+        self.elbow = SafeServo(kit.servo[2], initial_angle=90, min_angle=20, max_angle=135)
+        self.wrist = SafeServo(kit.servo[3], initial_angle=90, min_angle=70, max_angle=110)
+        self.gripper = SafeServo(kit.servo[4], initial_angle=90, min_angle=70, max_angle=150)
+
         self.servo_list = kit.servo
 
-        # init servos to safe angle
-        self.base.angle = 90
-        self.shoulder.angle = 90
-        self.elbow.angle = 90
-        self.wrist.angle = 90
-        self.gripper.angle = 90
-
         # Define absolute movement methods for all servos
-        self.set_base_angle = functools.partial(set_servo_angle, self.base)
-        self.set_shoulder_angle = functools.partial(set_servo_angle, self.shoulder)
-        self.set_elbow_angle = functools.partial(set_servo_angle, self.elbow)
-        self.set_wrist_angle = functools.partial(set_servo_angle, self.wrist)
-        self.set_gripper_angle = functools.partial(set_servo_angle, self.gripper)
+        self.set_base_angle = self.base.set_angle
+        self.set_shoulder_angle = self.shoulder.set_angle
+        self.set_elbow_angle = self.elbow.set_angle
+        self.set_wrist_angle = self.wrist.set_angle
+        self.set_gripper_angle = self.gripper.set_angle
 
         # Define relative movement methods for all servos
-        self.move_base = functools.partial(move_servo, self.base)
-        self.move_shoulder = functools.partial(move_servo, self.shoulder)
-        self.move_elbow = functools.partial(move_servo, self.elbow)
-        self.move_wrist = functools.partial(move_servo, self.wrist)
-        self.move_gripper = functools.partial(move_servo, self.gripper)
+        self.move_base = self.base.move
+        self.move_shoulder = self.shoulder.move
+        self.move_elbow = self.elbow.move
+        self.move_wrist = self.wrist.move
+        self.move_gripper = self.gripper.move
 
 
 def test():
