@@ -13,6 +13,7 @@ Motor front(3, 2, 4, true, Motor::BRAKE, 0.1); // m4
 
 SquareDrive squareDrive(front, right, left, back);
 
+const unsigned long TIMEOUT_MILLIS = 2000;
 void setup() {
     // Extra pause on startup, just for the CPU as a treat!
     // no, really, it might be helping with the uploads on
@@ -21,13 +22,39 @@ void setup() {
 
     Serial.begin(9600);
 
-    while (Serial.available() == 0) {
-        // Block until Serial is connected.
+    bool autonomousMode = true;
+    unsigned long startTime = millis();
+    while ((millis() - startTime) < TIMEOUT_MILLIS) {
+        if (Serial.available() > 0) {
+            Serial.print("Information has been sent over serial before the ");
+            Serial.print(TIMEOUT_MILLIS);
+            Serial.println(" millisecond timeout has ended.");
+
+            Serial.println("Not going into autonomous mode.");
+            autonomousMode = false;
+            break;
+        }
     }
+
+    if (autonomousMode) {
+        Serial.println("No information has been sent over serial before the ");
+        Serial.print(TIMEOUT_MILLIS);
+        Serial.println(" millisecond timeout has ended.");
+
+        Serial.println("Going into autonomous mode.");
+
+        // TODO: Do things autonomously here
+
+        Serial.println("Autonomous mode has completed.");
+    }
+
+    // After setup, robot goes into manual mode automatically.
+    Serial.println("Going into manual mode. Information sent via the serial connection will be read and used to control the motors accordingly.");
 }
 
 void loop() {
     if (Serial.available() > 0) {
+        // This code expects to be sent 3 floats per line
         float x = Serial.parseFloat();
         float y = Serial.parseFloat();
         float rotation = Serial.parseFloat();
