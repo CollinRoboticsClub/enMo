@@ -119,11 +119,14 @@ function sendArmData() {
         // clamp values to address bug mentioned above clamp() declaration
         armData[servo] = clamp(armData[servo]);
 
-        // TODO: check if this speed is fine, if not, adjust it and delete this TODO
+        // TODO:
+        // - check if this speed is fine, if not, adjust it and delete this TODO
+        // - move speed control into the backend, because frontend code shouldn't be able to control that
+        //
         // Since these are *relative* movements (change in degrees) that we're sending, and we send them pretty
         // quickly, we wouldn't want to move the servos *too* quickly, so:
-        // change arm range from [-100, 100] to [-10, 10]
-        armData[servo] /= 10;
+        // change arm range from [-100, 100] to [-2, 2]
+        armData[servo] /= 50;
 
         // turn into int
         armData[servo] = Math.trunc(armData[servo]);
