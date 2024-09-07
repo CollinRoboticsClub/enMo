@@ -60,7 +60,9 @@ async def move_wheels(websocket: WebSocket):
 
             arduino_serial.send(f"{x} {y} {rotation}")
     except (WebSocketDisconnect, ConnectionClosed):
-        arduino_serial.send(f"0 0 0")  # stop motors
+        # ensure motors are stopped on client disconnection
+        arduino_serial.send(f"0 0 0")
+
         print("client disconnected from wheels websocket")
 
 
