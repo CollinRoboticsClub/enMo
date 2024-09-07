@@ -19,12 +19,12 @@ const joystickArmOptions = {
 };
 const joystickRobotPosition = new JoyStick(
     'joystickRobotPosition',
-    "assets/cross-arrows-icon.webp",
+    'assets/cross-arrows-icon.webp',
     joystickWheelsOptions
 );
 const joystickRobotRotation = new JoyStick(
     'joystickRobotRotation',
-    "assets/rotate-icon.webp",
+    'assets/rotate-icon.webp',
     joystickWheelsOptions
 );
 const joystickArmBaseShoulder = new JoyStick(
