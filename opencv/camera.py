@@ -2,6 +2,7 @@ import asyncio
 import concurrent.futures
 import functools
 import multiprocessing as mp
+import threading
 from contextlib import asynccontextmanager
 
 import cv2
@@ -24,10 +25,11 @@ def detect_bounding_box(image, cascade_classifier):
 
 
 def queue_camera_frames(
-        input_video_capture: cv2.VideoCapture,
-        output_frames_queue: mp.Queue
+    input_video_capture: cv2.VideoCapture,
+    output_frames_queue: mp.Queue,
+    exiting: threading.Event,
 ):
-    while True:
+    while not exiting.is_set():
         # read frame
         result, video_frame = input_video_capture.read()
         if result is False:
@@ -39,10 +41,11 @@ def queue_camera_frames(
 
 
 def encode_processed_frames(
-        input_frames_queue: mp.Queue,
-        output_frames_queue: mp.Queue
+    input_frames_queue: mp.Queue,
+    output_frames_queue: mp.Queue,
+    exiting: threading.Event,
 ):
-    while True:
+    while not exiting.is_set():
         current_frame = input_frames_queue.get()
 
         # encode frame
@@ -55,11 +58,12 @@ def encode_processed_frames(
 
 
 def process_camera_frames(
-        input_frames_queue: mp.Queue,
-        output_frames_queue: mp.Queue,
-        cascade_classifier: cv2.CascadeClassifier
+    input_frames_queue: mp.Queue,
+    output_frames_queue: mp.Queue,
+    cascade_classifier: cv2.CascadeClassifier,
+    exiting: threading.Event,
 ):
-    while True:
+    while not exiting.is_set():
         current_frame = input_frames_queue.get()
 
         # this modifies the parameter in-place
@@ -97,22 +101,26 @@ async def lifespan(app: FastAPI):
     opencv_processed_queue = mp.Queue(maxsize=QUEUE_MAX_SIZE)
 
     print("about to start camera threads")
+    exiting = threading.Event()
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=3)
     executor.submit(
         queue_camera_frames,
         input_video_capture=video_capture,
-        output_frames_queue=camera_frames_queue
+        output_frames_queue=camera_frames_queue,
+        exiting=exiting,
     )
     executor.submit(
         process_camera_frames,
         input_frames_queue=camera_frames_queue,
         output_frames_queue=opencv_processed_queue,
         cascade_classifier=FACE_CLASSIFIER,
+        exiting=exiting,
     )
     executor.submit(
         encode_processed_frames,
         input_frames_queue=opencv_processed_queue,
         output_frames_queue=global_encoded_byte_frame_queue,
+        exiting=exiting,
     )
     print("done starting camera threads")
 
@@ -120,7 +128,25 @@ async def lifespan(app: FastAPI):
 
     # Run on shutdown
     print("Shutting down...")
+
     video_capture.release()
+
+    # set global event, telling threads to exit on next iteration.
+    exiting.set()
+
+    # force the next iteration for threads currently waiting on queue.put() calls.
+    # this allows them to check the value of the "exiting" event, so that they exit.
+    camera_frames_queue.get()
+    opencv_processed_queue.get()
+    global_encoded_byte_frame_queue.get()
+
+    # allow queues to be closed without flushing buffers.
+    # this is fine because we don't care about the data in them.
+    camera_frames_queue.cancel_join_thread()
+    opencv_processed_queue.cancel_join_thread()
+    global_encoded_byte_frame_queue.cancel_join_thread()
+
+    # shut down the thread pool executor
     executor.shutdown()
 
 
