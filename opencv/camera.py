@@ -66,7 +66,7 @@ def process_camera_frames(
     while not exiting.is_set():
         current_frame = input_frames_queue.get()
 
-        # this modifies the parameter in-place
+        # this modifies the frame in-place
         detect_bounding_box(current_frame, cascade_classifier)
 
         output_frames_queue.put(current_frame)
